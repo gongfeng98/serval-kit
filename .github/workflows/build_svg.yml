@@ -2,9 +2,9 @@ name: Build SVG Artifacts
 
 on:
   push:
-    branches: ["main"]
+    branches: ["p/gongfeng98/testSHA"]
   pull_request:
-    branches: ["main"]
+    branches: ["p/gongfeng98/testSHA"]
   workflow_dispatch:
     inputs:
       build_android:
@@ -30,11 +30,16 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Install Cocoapods Generate
-        run: |
-          export SDKROOT=/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk
-          bundle install --path .bundle
-
       - name: Lint Podspec File
         run: |
-          POD_VERSION=0.0.1-for-ci-test SERVAL_KIT_VERSION=${{ github.event_name == 'pull_request' ? github.event.pull_request.head.sha : github.sha }} bundle exec pod spec lint svg/ServalSVG.podspec --verbose --skip-import-validation --allow-warnings
+          echo "222"
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            COMMIT_SHA="${{ github.event.pull_request.head.sha }}"
+            echo "AAAA"
+          else
+            COMMIT_SHA="${{ github.sha }}"
+            echo "BBBB"
+          fi
+          echo $COMMIT_SHA
+          POD_VERSION=0.0.1-for-ci-test SERVAL_KIT_VERSION=COMMIT_SHA bundle exec pod spec lint svg/ServalSVG.podspec --verbose --skip-import-validation --allow-warnings
+          echo "111"
